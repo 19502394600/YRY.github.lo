@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蜡笔小新粉丝博客 | Crayon Shin-chan Blog</title>
+    <style>
+        :root {
+            --primary-color: #FF6B6B;
+            --secondary-color: #4ECDC4;
+            --accent-color: #FFE66D;
+            --bg-color: #FFF9F0;
+            --card-bg: #FFFFFF;
+            --text-color: #2D3436;
+            --text-light: #636E72;
+            --shadow: 0 8px 25px rgba(255, 107, 107, 0.15);
+            --radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color); color: var(--text-color);
+            line-height: 1.8; min-height: 100vh; display: flex; flex-direction: column;
+            overflow-x: hidden;
+        }
+        header { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        nav { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary-color); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links li a { text-decoration: none; color: var(--text-light); font-weight: 600; padding: 0.5rem 0; position: relative; transition: color 0.3s; }
+        .nav-links li a:hover, .nav-links li a.active { color: var(--primary-color); }
+        .nav-links li a.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--primary-color); border-radius: 2px; }
+        
+        main { flex: 1; max-width: 1200px; margin: 2rem auto; padding: 0 2rem; width: 100%; }
+        .page-section { display: none; animation: fadeIn 0.6s ease; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Hero 区域 */
+        .hero { position: relative; border-radius: var(--radius); overflow: hidden; margin-bottom: 3rem; height: 450px; display: flex; align-items: flex-end; }
+        .hero-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); z-index: 1; }
+        .hero-content { position: relative; z-index: 2; padding: 3rem; color: white; max-width: 700px; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .hero p { font-size: 1.2rem; opacity: 0.95; margin-bottom: 2rem; }
+        .hero-btn { padding: 1rem 2.5rem; background: var(--primary-color); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; font-size: 1.1rem; }
+        .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,107,107,0.4); }
+
+        .section-title { font-size: 2rem; color: var(--primary-color); margin-bottom: 2rem; padding-left: 1rem; border-left: 5px solid var(--secondary-color); display: flex; align-items: center; gap: 0.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+        .card { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; border: 2px solid transparent; }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent-color); box-shadow: 0 15px 35px rgba(255, 107, 107, 0.2); }
+        .card h3 { color: var(--primary-color); margin-bottom: 0.5rem; font-size: 1.3rem; }
+        .card p { color: var(--text-light); font-size: 0.95rem; }
+
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .photo-card { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: transform 0.3s; background: white; }
+        .photo-card:hover { transform: translateY(-5px); }
+        .photo-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+        .photo-card .caption { padding: 1rem; font-size: 0.9rem; color: var(--text-light); text-align: center; background: var(--card-bg); }
+
+        /* 角色档案样式 */
+        .profile-container { display: flex; gap: 3rem; align-items: center; flex-wrap: wrap; margin-bottom: 3rem; background: var(--card-bg); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); transition: transform 0.3s; }
+        .profile-container:hover { transform: translateX(5px); }
+        .profile-img { width: 250px; height: 250px; object-fit: cover; border-radius: var(--radius); flex-shrink: 0; box-shadow: var(--shadow); border: 4px solid var(--accent-color); }
+        .profile-info { flex: 1; min-width: 300px; }
+        .profile-info h2 { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; }
+        .tag { display: inline-block; background: #FFF0F0; color: var(--primary-color); padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.8rem; margin-right: 0.5rem; margin-bottom: 1rem; font-weight: bold; }
+
+        /* 合照区 */
+        .group-photo-wrapper { background: var(--card-bg); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 3rem; text-align: center; border: 2px dashed var(--secondary-color); }
+        .group-photo-wrapper img { width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; }
+        .group-photo-wrapper p { margin-top: 1rem; color: var(--secondary-color); font-size: 1.1rem; font-weight: 600; }
+
+        /* 语录高亮 */
+        .highlight-quote { 
+            background: linear-gradient(135deg, var(--primary-color), #FF8E8E); 
+            color: white; padding: 2rem; border-radius: var(--radius); text-align: center; 
+            font-size: 1.5rem; font-weight: bold; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; 
+            margin-bottom: 3rem; box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+        }
+        .highlight-quote:hover { transform: scale(1.02); box-shadow: 0 15px 40px rgba(255,107,107,0.4); }
+        .highlight-quote span { display: block; font-size: 0.9rem; opacity: 0.9; margin-top: 0.5rem; font-weight: normal; }
+
+        .quote-card { border-left: 5px solid var(--secondary-color); background: var(--card-bg); margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 0 var(--radius) var(--radius) 0; }
+        .quote-card p { font-style: italic; font-size: 1.1rem; color: var(--text-color); }
+        .quote-card span { display: block; margin-top: 1rem; color: var(--primary-color); font-style: normal; font-weight: bold;}
+
+        /* 爱心飘落页面 */
+        .love-page { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: linear-gradient(135deg, #FFF0F5, #FFE4E1); 
+            z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; 
+            text-align: center; padding: 2rem; overflow: hidden;
+        }
+        .love-page.show { display: flex; animation: fadeIn 0.5s ease; }
+        .love-content { 
+            background: rgba(255,255,255,0.95); padding: 3rem; border-radius: var(--radius); 
+            max-width: 600px; width: 100%; box-shadow: 0 20px 50px rgba(255,107,107,0.2);
+            z-index: 10; position: relative; max-height: 90vh; overflow-y: auto;
+        }
+        .love-content h2 { color: var(--primary-color); font-size: 2.5rem; margin-bottom: 1.5rem; }
+        .love-content p { font-size: 1.2rem; color: var(--text-color); margin-bottom: 1rem; line-height: 2; }
+        .love-photo { width: 100%; max-width: 400px; height: 300px; object-fit: cover; border-radius: var(--radius); margin: 2rem auto; display: block; box-shadow: var(--shadow); border: 5px solid white; }
+        .close-love { position: absolute; top: 20px; right: 20px; font-size: 2rem; cursor: pointer; color: var(--primary-color); background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.3s; border: none; }
+        .close-love:hover { transform: rotate(90deg); }
+
+        .heart { position: absolute; top: -50px; font-size: 2rem; animation: fall linear infinite; pointer-events: none; z-index: 1; }
+        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+
+        footer { text-align: center; padding: 2rem; margin-top: 3rem; color: var(--text-light); font-size: 0.9rem; border-top: 1px solid #eee; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; } .hero { height: 350px; } .nav-links { gap: 1rem; }
+            .profile-container { flex-direction: column; text-align: center; }
+            .profile-img { width: 100%; max-width: 250px; } .highlight-quote { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-links">
+            <a data-page="home" onclick="switchPage('home')">🏠 首页</a>
+            <a data-page="profile" onclick="switchPage('profile')">🖍️ 角色档案</a>
+            <a data-page="family" onclick="switchPage('family')">👨‍👩‍👧‍👦 野原一家</a>
+            <a data-page="quotes" onclick="switchPage('quotes')">💬 经典语录</a>
+        </div>
+    </nav>
+    </header>
+
+    <main>
+        <!-- 页面 1: 首页 -->
+        <section id="home" class="page-section active">
+            <div class="hero">
+                <!-- 📸 照片占位符：首页大图，建议放小新最治愈的笑容或全家福 -->
+                <img src="images/07.jpg" alt="小新首页大图" class="hero-img">
+                <div class="hero-overlay"></div>
+                <div class="hero-content">
+                    <h1>永远5岁的新之助</h1>
+                    <p>他调皮、好色、没大没小，却用最纯真的方式治愈了无数成年人的心。欢迎来到蜡笔小新的世界，这里不仅有欢笑，还有关于爱与成长的哲学。</p>
+                    <button class="hero-btn" onclick="switchPage('profile')">✨ 探索小新世界</button>
+                </div>
+            </div>
+
+            <h2 class="section-title">🌸 探索小新世界</h2>
+            <div class="grid">
+                <article class="card" onclick="switchPage('profile')">
+                    <h3>👦 角色介绍</h3>
+                    <p>双叶幼稚园向日葵小班学生，5岁，喜欢动感超人、巧克力饼干和漂亮的大姐姐。</p>
+                </article>
+                <article class="card" onclick="switchPage('family')">
+                    <h3>🏠 野原一家</h3>
+                    <p>广志的脚臭、美伢的拳头、小葵的嫉妒、小白的智商...这就是最真实的家庭模样。</p>
+                </article>
+                <article class="card" onclick="switchPage('quotes')">
+                    <h3>💬 治愈语录</h3>
+                    <p>“大人的世界充满谎言，但小新的世界只有真心。” 收集那些让人笑中带泪的台词。</p>
+                </article>
+            </div>
+
+            <h2 class="section-title">📸 经典名场面</h2>
+            <div class="photo-grid">
+                <div class="photo-card">
+                    <!-- 📸 照片占位符：小新跳大象舞 -->
+                    <img src="images/01.jpg" alt="小新跳大象舞">
+                    <div class="caption">无论多烦恼，跳个舞就好了</div>
+                </div>
+                <div class="photo-card">
+                    <!-- 📸 照片占位符：小新和小白散步 -->
+                    <img src="images/02.jpg" alt="小新和小白散步">
+                    <div class="caption">一人一狗，岁月静好</div>
+                </div>
+                <div class="photo-card">
+                    <!-- 📸 照片占位符：动感超人变身 -->
+                    <img src="images/03.jpg" alt="动感超人">
+                    <div class="caption">正义与勇气的化身</div>
+                </div>
+                <div class="photo-card">
+                    <!-- 📸 照片占位符：野原全家福 -->
+                    <img src="images/04.jpg" alt="野原全家福">
+                    <div class="caption">吵吵闹闹也是爱</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页面 2: 角色档案 -->
+        <section id="profile" class="page-section">
+            <h2 class="section-title">👥 角色档案</h2>
+            
+            <!-- 春日部防卫队合照 -->
+            <div class="group-photo-wrapper">
+                <!-- 📸 照片占位符：春日部防卫队大合照 -->
+                <img src="images/06.jpg" alt="春日部防卫队大合照">
+                <p>🌸 春日部防卫队：永远长不大的童年玩伴 🌸</p>
+            </div>
+
+            <!-- 小新 -->
+            <div class="profile-container">
+                <!-- 📸 照片占位符：小新的高清立绘或经典剧照 -->
+                <img src="images/05.jpg" alt="野原新之助" class="profile-img">
+                <div class="profile-info">
+                    <h2>野原新之助</h2>
+                    <div><span class="tag">5岁</span><span class="tag">双叶幼稚园</span><span class="tag">动感超人粉丝</span></div>
+                    <p style="margin-bottom: 1rem;">野原新之助，昵称“小新”，有着浓重的眉毛和独特的嗓音。性格调皮捣蛋，喜欢搭讪漂亮大姐姐，经常让妈妈美伢抓狂。</p>
+                    <p>但在搞笑行为的背后，小新有着超乎年龄的通透和善良。他会在妈妈难过时默默陪伴，用自己的方式守护着这个家。</p>
+                </div>
+            </div>
+
+            <!-- 风间 -->
+            <div class="profile-container">
+                <!-- 📸 照片占位符：风间彻的经典照片 -->
+                <img src="images/08.jpg" alt="风间彻" class="profile-img">
+                <div class="profile-info">
+                    <h2>风间彻</h2>
+                    <div><span class="tag">5岁</span><span class="tag">精英儿童</span><span class="tag">傲娇担当</span></div>
+                    <p style="margin-bottom: 1rem;">小新的头号“冤家”兼挚友。表面上是成绩优异、举止优雅的优等生，实际上是个无可救药的“动感超人”狂热粉。</p>
+                    <p>虽然嘴上总说“我才不要和小新玩”，但每次小新有难，他总是第一个冲上去。这种口是心非的友情，真的太戳人了！</p>
+                </div>
+            </div>
+
+            <!-- 妮妮 -->
+            <div class="profile-container">
+                <!-- 📸 照片占位符：樱田妮妮的经典照片 -->
+                <img src="images/09.jpg" alt="樱田妮妮" class="profile-img">
+                <div class="profile-info">
+                    <h2>樱田妮妮</h2>
+                    <div><span class="tag">5岁</span><span class="tag">超真实过家家</span><span class="tag">兔子玩偶</span></div>
+                    <p style="margin-bottom: 1rem;">看似温柔可爱的乖乖女，一旦生气就会疯狂捶打兔子玩偶。她是“超真实过家家”的绝对导演，剧情总是充满成人世界的辛酸与无奈。</p>
+                    <p>虽然有时候有点小任性，但她对朋友的关心一点也不少，是春日部防卫队里不可或缺的“大姐头”。</p>
+                </div>
+            </div>
+
+            <!-- 正男 -->
+            <div class="profile-container">
+                <!--  
+            <!-- 正男 (接续位置) -->
+            <div class="profile-container">
+                <!-- 📸 照片占位符：佐藤正男 -->
+                <img src="images/10.jpg" alt="佐藤正男" class="profile-img">
+                <div class="profile-info">
+                    <h2>佐藤正男</h2>
+                    <div><span class="tag">5岁</span><span class="tag">爱哭鬼</span><span class="tag">漫画家梦想</span></div>
+                    <p style="margin-bottom: 1rem;">性格胆小懦弱，动不动就哭鼻子，但内心其实很温柔。虽然经常被小新捉弄，但在关键时刻也会鼓起勇气保护朋友。</p>
+                    <p>他最大的梦想是成为漫画家，虽然画风总是很清奇，但那份坚持真的很可爱。他是防卫队里最让人想保护的存在。</p>
+                </div>
+            </div>
+
+            <!-- 阿呆 -->
+            <div class="profile-container">
+                <!-- 📸 照片占位符：阿呆 -->
+                <img src="images/11.jpg" alt="阿呆" class="profile-img">
+                <div class="profile-info">
+                    <h2>阿呆</h2>
+                    <div><span class="tag">5岁</span><span class="tag">鼻涕达人</span><span class="tag">隐藏天才</span></div>
+                    <p style="margin-bottom: 1rem;">总是挂着鼻涕，说话慢吞吞，但其实智商超高、博学多才。他是防卫队里最冷静、最靠谱的存在，关键时刻总能用鼻涕解决问题（？）</p>
+                    <p>虽然话不多，但他对小新的包容和陪伴是最长情的。他和妮妮的互动也充满了反差萌，是真正的“深藏不露”。</p>
+                </div>
+            </div>
+
+            <!-- 小白 -->
+            <div class="profile-container">
+                <!-- 📸 照片占位符：小白 -->
+                <img src="images/12.jpg" alt="小白" class="profile-img">
+                <div class="profile-info">
+                    <h2>小白</h2>
+                    <div><span class="tag">流浪犬</span><span class="tag">智商超高</span><span class="tag">变身大师</span></div>
+                    <p style="margin-bottom: 1rem;">被小新捡回家的流浪狗，但智商碾压全家！会买菜、会照顾小葵、甚至会开车（？）。它是这个家里最像“人”的成员。</p>
+                    <p>虽然不会说话，但它的眼神里全是戏。它是小新最忠实的伙伴，也是野原家不可或缺的“定海神针”。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页面 3: 野原一家 -->
+        <section id="family" class="page-section">
+            <h2 class="section-title">🏠 野原一家</h2>
+            
+            <div class="group-photo-wrapper">
+                <!-- 📸 照片占位符：野原一家全家福 -->
+                <img src="images/17.jpg" alt="野原一家全家福">
+                <p>🏡 吵吵闹闹，但永远相爱的一家人 🏡</p>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                   <!-- 📸 照片占位符：野原美伢 -->
+<img src="images/14.jpg" alt="野原美伢" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:1rem;">
+                    <h3>野原美伢</h3>
+                    <p>29岁，全职主妇。虽然经常因为小新抓狂，有“美伢铁拳”，但她是这个家最坚强的后盾。她的辛苦和付出，小新其实都懂。</p>
+                </div>
+                <div class="card">
+                   <!-- 📸 照片占位符：野原广志 -->
+<img src="images/15.jpg" alt="野原广志" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:1rem;">
+                    <h3>野原广志</h3>
+                    <p>35岁，双叶商事课长。脚臭是他的标志，但他是全剧最真实的“好男人”。为了32年的房贷和家人，他默默扛下了所有压力。</p>
+                </div>
+                <div class="card">
+                    <!-- 📸 照片占位符：野原向日葵 -->
+<img src="images/16.jpg" alt="野原向日葵" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:1rem;">
+                    <h3>野原向日葵</h3>
+                    <p>0岁，小新的妹妹。虽然还是婴儿，但已经继承了妈妈的“帅哥雷达”和爸爸的“脚臭基因”（误）。她是全家的小公主，也是小新的“小跟班”。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页面 4: 经典语录 -->
+        <section id="quotes" class="page-section">
+            <h2 class="section-title">💬 治愈语录</h2>
+            
+            <!-- 重点标记：点击触发爱心 -->
+            <div class="highlight-quote" onclick="openLovePage()">
+                “人生就是起起落落落落... 但只要和家人在一起，就没什么过不去的。”
+                <span>👉 点击这里，接收小新的爱心暴击 ❤️</span>
+            </div>
+
+            <div class="quote-card">
+                <p>“大人总是忙着长大，却忘了怎么当个小孩。”</p>
+                <cite>—— 野原新之助</cite>
+            </div>
+            <div class="quote-card">
+                <p>“只要活着，就一定会遇到好事。比如现在，我就遇到了你。”</p>
+                <cite>—— 野原新之助</cite>
+            </div>
+            <div class="quote-card">
+                <p>“就算全世界都否定你，我也会站在你身后，为你加油（然后偷吃你的饼干）。”</p>
+                <cite>—— 野原新之助</cite>
+            </div>
+            <div class="quote-card">
+                <p>“真正的强大，不是从不流泪，而是含着眼泪依然奔跑。”</p>
+                <cite>—— 动感超人</cite>
+            </div>
+            <div class="quote-card">
+                <p>“家人就是，即使吵得不可开交，晚饭时还是会喊你回来吃饭的人。”</p>
+                <cite>—— 野原广志</cite>
+            </div>
+        </section>
+    </main>
+
+    <!-- 爱心飘落告白页 -->
+    <div id="lovePage" class="love-page">
+        <div class="love-content">
+            <button class="close-love" onclick="closeLovePage()">✕</button>
+            <h2>💌 给最特别的你</h2>
+            <p>小新说：“喜欢就是喜欢，不需要理由。”</p>
+            <p>但我想说，我喜欢你，<strong>因为女朋友喜欢</strong>。</p>
+            <p>因为你喜欢小新的纯真，喜欢野原一家的温暖，喜欢这些治愈的瞬间。所以，我也爱上了这一切，更爱那个热爱这一切的你。</p>
+            
+<!-- 📸 照片占位符：因为女朋友喜欢的专属照片 -->
+<div class="love-photo">
+    <img src="images/love.jpg" alt="专属合照" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+</div>
+            <p style="font-size:1rem; color:#666; margin-top:1rem;">愿我们像野原一家一样，吵吵闹闹，但永远相爱。🖍️</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>🖍️ Crayon Shin-chan Fan Blog | Made with ❤️ for you</p>
+        <p style="font-size:0.8rem; margin-top:0.5rem;">© 2024 春日部防卫队后援会</p>
+    </footer>
+
+      <script>
+// 页面切换逻辑
+function switchPage(pageId) {
+    // 1. 隐藏所有页面，并移除导航栏的高亮状态
+    document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+    document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+    
+    // 2. 显示目标页面，并高亮对应的导航按钮
+    const targetPage = document.getElementById(pageId);
+    const targetLink = document.querySelector(`[data-page="${pageId}"]`);
+    
+    if (targetPage) targetPage.classList.add('active');
+    if (targetLink) targetLink.classList.add('active');
+    
+    // 3. 切换页面时，平滑滚动到网页最顶部
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 页面加载时，默认激活首页（防止刷新后页面空白）
+document.addEventListener('DOMContentLoaded', function() {
+    switchPage('home');
+});
+
+        // 爱心飘落逻辑
+        function openLovePage() {
+            const page = document.getElementById('lovePage');
+            page.classList.add('show');
+            createHearts();
+        }
+
+        function closeLovePage() {
+            document.getElementById('lovePage').classList.remove('show');
+            document.querySelectorAll('.heart').forEach(h => h.remove());
+        }
+
+        function createHearts() {
+            const container = document.getElementById('lovePage');
+            const hearts = ['❤️', '💖', '💕', '🩷', '🖍️'];
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                heart.style.animationDelay = Math.random() * 2 + 's';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                container.appendChild(heart);
+            }
+        };
+
+        // 点击外部关闭弹窗（可选）
+        document.getElementById('lovePage').addEventListener('click', function(e) {
+            if (e.target === this) closeLovePage();
+        });
+</script>
+</body>
+</html>
